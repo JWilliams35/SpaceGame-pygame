@@ -5,9 +5,8 @@ import random
 pygame.init()
 clock = pygame.time.Clock()
 
-#size of the game
-W, H = 500,500
-win =  pygame.display.set_mode((W, H))
+H, W= 500, 500
+win =  pygame.display.set_mode((H, W))
 #background image
 background = pygame.image.load("assest/space.jpg").convert()
 B = 0
@@ -15,62 +14,59 @@ B = 0
 pygame.display.set_caption("Insert name")
 
 
-#------reference-----
+#------class-----
+class player(object):
+    def __init__(self, x, y, LA, LO):
+        
+        self.LA = LA #hero size (LA = width, LO = height)
+        self.LO = LO
+        self.x = x #starting position
+        self.y = y
+        self.vel = 5 #space between boundary and ship
+        self.speed = 15 #speed of the ship
+        self.left = False
+        self.right = False
+        self.down = False
 
-#hero size (LA = width, LO = height)
-LA, LO = 85, 80
-#starting position
-#(changes in starting position will have to be made manually,
-#otherwise it will be based on the window size)
-x = W * 0.44
-y = H * 0.84
-#Hero hitbox (don't touch unless you want the hitbox to not match the sprite)
-widthH, heightH = LA, LO
-#space between boundary and ship
-vel = 5
-#speed of the ship
-speed = 15
-#do not touch
-left = False
-right = False
-down = False
+    def draw(self,win):
+        hero = pygame.image.load('assest/idle/idleH.png')
+        hero = pygame.transform.scale(hero, (self.LA, self.LO))
+        rect = hero.get_rect()
+        rect = rect.move((self.x, self.y))
+        flyRight = pygame.image.load('assest/right/rightH.png')
+        flyRight = pygame.transform.scale(flyRight, (self.LA, self.LO))
+        flyLeft = pygame.image.load('assest/left/leftH.png')
+        flyLeft = pygame.transform.scale(flyLeft, (self.LA, self.LO))
+        flyBack = pygame.image.load('assest/back/back.png')
+        flyBack = pygame.transform.scale(flyBack, (self.LA, self.LO))
+
+        #change sprite
+        if self.left:
+            win.blit(flyLeft,(self.x,self.y))
+        elif self.right:
+            win.blit(flyRight,(self.x,self.y))
+        elif self.down:
+            win.blit(flyBack, (self.x,self.y))
+        else:
+            win.blit(hero, (self.x,self.y))
+
+
 #--------------------
 
 def DrawAssest():
-    global LA, LO
     global B
     
-    #background
-    rel_B = B % background.get_rect().height
+    rel_B = B % background.get_rect().height#background 
     win.blit(background, (0,rel_B - background.get_rect().height ))
     if rel_B < W:
-        win.blit(background, (0, rel_B))
-    #background speed
-    B +=5
-    #character
-    hero = pygame.image.load('assest/idle/idleH.png')
-    hero = pygame.transform.scale(hero, (LA, LO))
-    rect = hero.get_rect()
-    rect = rect.move((x, y))
-    flyRight = pygame.image.load('assest/right/rightH.png')
-    flyRight = pygame.transform.scale(flyRight, (LA, LO))
-    flyLeft = pygame.image.load('assest/left/leftH.png')
-    flyLeft = pygame.transform.scale(flyLeft, (LA, LO))
-    flyBack = pygame.image.load('assest/back/back.png')
-    flyBack = pygame.transform.scale(flyBack, (LA, LO))
+        win.blit(background, (0, rel_B)) 
+    B +=5 #background speed 
 
-    #change sprite
-    if left:
-        win.blit(flyLeft,(x,y))
-    elif right:
-        win.blit(flyRight,(x,y))
-    elif down:
-        win.blit(flyBack, (x,y))
-    else:
-        win.blit(hero, (x,y))
-        
+    PC.draw(win)
     pygame.display.update()
 
+#main loop
+PC = player(220, 240, 85, 80)
 run = True
 while run:
     clock.tick(60)
@@ -81,28 +77,27 @@ while run:
 
     keys = pygame.key.get_pressed()
     
-    if keys[pygame.K_LEFT] and x > vel:
-        x -= speed
-        left = True
-        right = False
+    if keys[pygame.K_LEFT] and PC.x > PC.vel:
+        PC.x -= PC.speed
+        PC.left = True
+        PC.right = False
         
-    elif keys[pygame.K_RIGHT] and x < W - widthH - vel:
-        x += speed
-        right = True
-        left = False
+    elif keys[pygame.K_RIGHT] and PC.x < W - PC.LA - PC.vel:
+        PC.x += PC.speed
+        PC.right = True
+        PC.left = False
         
     else:
-        right = False
-        left = False
+        PC.right = False
+        PC.left = False
         
-    if keys[pygame.K_UP] and y > vel:
-        y -= speed
-    elif keys[pygame.K_DOWN] and y < H - heightH - vel: 
-        y += speed
-        down = True
+    if keys[pygame.K_UP] and PC.y > PC.vel:
+        PC.y -= PC.speed
+    elif keys[pygame.K_DOWN] and PC.y < H - PC.LO - PC.vel: 
+        PC.y += PC.speed
+        PC.down = True
     else:
-        down = False
-
+        PC.down = False
 
 
     DrawAssest()
