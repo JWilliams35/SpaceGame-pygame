@@ -50,7 +50,17 @@ class player(object):
         else:
             win.blit(hero, (self.x,self.y))
 
+class projectile(object):
+    def __init__(self,x,y,radius,color,Bspeed):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.Bspeed = Bspeed
+        
 
+    def draw(self,win):
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
 #--------------------
 
 def DrawAssest():
@@ -61,12 +71,16 @@ def DrawAssest():
     if rel_B < W:
         win.blit(background, (0, rel_B)) 
     B +=5 #background speed 
-
+    
     PC.draw(win)
+    for bullet in bullets:
+        bullet.draw(win)
+        
     pygame.display.update()
 
 #main loop
 PC = player(220, 240, 85, 80)
+bullets = []
 run = True
 while run:
     clock.tick(60)
@@ -74,8 +88,18 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
+            
+    for bullet in bullets:
+        if bullet.y < W and bullet.y > 0:
+            bullet.y -= bullet.Bspeed
+        else:
+            bullets.pop(bullets.index(bullet))
+            
     keys = pygame.key.get_pressed()
+    
+    if keys[pygame.K_SPACE]:
+        if len(bullets) < 5:
+            bullets.append(projectile(round(PC.x + PC.LA //2), round(PC.y + PC.LO //2), 6, (255,0,0), 25))
     
     if keys[pygame.K_LEFT] and PC.x > PC.vel:
         PC.x -= PC.speed
@@ -99,7 +123,7 @@ while run:
     else:
         PC.down = False
 
-
+        
     DrawAssest()
 
     
